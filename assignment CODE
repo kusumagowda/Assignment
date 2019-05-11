@@ -1,0 +1,188 @@
+package com.sql;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Scanner;
+
+public class TestPS {
+
+	public static void main(String[] args) throws ParseException {
+		
+		String driverName = "org.hsqldb.jdbcDriver";
+		String url = "jdbc:hsqldb:hsql://localhost/xdb";
+		String uid = "SA";
+		String pwd = "";
+		int ch=0;
+		
+		Connection con = null;
+		PreparedStatement ps_ins = null, ps_sql = null;
+		ResultSet rs = null;
+		Scanner sc1 = new Scanner(System.in);
+		Scanner sc2 = new Scanner(System.in);
+		
+		try
+		{
+			Class.forName(driverName);
+			con = DriverManager.getConnection(url,uid,pwd);
+			System.out.println("con = "+con);
+			while(ch!=5)
+			{
+				System.out.println("Press 1 to Add Info");
+				System.out.println("Press 2 to Search");
+				System.out.println("Press 3 to Update");
+				System.out.println("Press 4 to Delete");
+				System.out.println("Press 5 to Exit");
+
+
+				ch = sc1.nextInt();
+				switch(ch)
+				{
+					case 1:
+							System.out.println("Adding...");
+							
+			
+			System.out.println("Enter the Fname");
+			String fname = sc2.nextLine();
+			
+			System.out.println("Enter the Lname");
+			String lname = sc2.nextLine();
+			
+			System.out.println("Enter the birthdate (dd/mm/yyyy) ");
+			String birthdate= sc2.nextLine();
+			SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yyyy");
+			
+			Date d=sdf.parse(birthdate);
+			
+			System.out.println("Enter the Email");
+			String email = sc2.nextLine();
+			
+			System.out.println("Enter the street");
+			String street = sc2.nextLine();
+			
+			System.out.println("Enter the zipcode");
+			String zipcode = sc2.nextLine();
+			
+			System.out.println("Enter the phone");
+			int phone = sc1.nextInt();
+			
+			System.out.println("Enter the city");
+			String city = sc2.nextLine();
+			
+			System.out.println("Enter the houseno");
+			String houseno = sc2.nextLine();					
+			
+			ps_ins = con.prepareStatement("insert into addressbook(fname,lname,birthdate,email,street,zipcode,phone,city,houseno) values(?,?,?,?,?,?,?,?,?)");
+		
+			ps_sql = con.prepareStatement("select * from addressbook");
+			
+			ps_ins.setString(1, fname);
+			ps_ins.setString(2, lname);
+			ps_ins.setDate(3, new java.sql.Date(d.getTime()));
+			ps_ins.setString(4, email);
+			ps_ins.setString(5,street);
+			ps_ins.setString(6, zipcode);
+			ps_ins.setInt(7, phone);
+			ps_ins.setString(8, city);
+			ps_ins.setString(9, houseno);
+			
+			
+			ps_ins.execute();
+			
+			ps_sql.execute();
+			rs = ps_sql.getResultSet();
+			while(rs.next())
+			{
+				fname = rs.getString("fname");
+				lname = rs.getString("lname");
+				birthdate = rs.getString("birthdate");
+				email=rs.getString("email");
+				street=rs.getString("street");
+				zipcode=rs.getString("zipcode");
+				phone=rs.getInt("phone");
+				city=rs.getString("city");
+				houseno=rs.getString("houseno");
+			}
+				
+				System.out.println("FNAME : "+fname+" LNAME : "+lname+"BIRTHDATE : "+birthdate+"EMAIL : "+email+"STREET : "+street+"ZIPCODE : "+zipcode+"PHONE : "+phone+"CITY : "+city+"HOUSENO : "+houseno);
+			
+			break;
+			case 2:
+						System.out.println("Search...");
+						System.out.println("Enter the Name to be searched");
+						String fname1 = sc2.nextLine();
+						
+								
+						break;
+					case 3:
+						System.out.println("Update...");
+						System.out.println("Enter the Fname to be updated");
+						String fname2 = sc2.nextLine();
+						System.out.println("Enter the new Fname");
+						String fname3 = sc2.nextLine();
+
+						
+						ps_ins = con.prepareStatement("update addressbook set Fname=? where Fname=?");
+						ps_ins.setString(1,fname3);
+						ps_ins.setString(2,fname2);
+						ps_ins.executeUpdate();
+
+						System.out.println("Successfully updated");
+						
+						break;
+					case 4:
+						System.out.println("Delete...");
+						System.out.println("Enter the Fname to be deleted");
+						String fname5 = sc2.nextLine();
+						
+						
+						ps_ins = con.prepareStatement("delete from addressbook where Fname=?");
+						ps_ins.setString(1,fname5);
+				
+						ps_ins.executeUpdate();
+
+						System.out.println("Deleted!!");
+						
+						break;
+					case 5:
+						System.out.println("Terminated...");
+						break;
+					default:
+						System.out.println("Enter proper values");
+						break;
+
+
+		}
+			}
+		}
+		catch(ClassNotFoundException | SQLException e)
+		{
+			e.printStackTrace();
+		}
+		
+		finally
+		{
+			try
+			{
+				if(rs!=null)
+					rs.close();
+				if(ps_ins !=null)
+					ps_ins.close();
+				if(ps_sql !=null)
+					ps_sql.close();
+				if(con!=null)
+					con.close();
+			}
+			catch(SQLException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+}
+
